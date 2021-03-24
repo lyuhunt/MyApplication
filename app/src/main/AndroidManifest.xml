@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.apos.mvvm.myapplication">
+
+    <application
+        android:name=".MyApplication"
+        android:icon="${UMENG_APP_ICON}"
+        android:label="${UMENG_APP_NAME}"
+        android:allowBackup="true"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="${UMENG_APP_NAME}"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+
+        <provider
+            android:name="com.apos.mvvm.myapplication.MyContentProvider"
+            android:authorities="${applicationId}"
+            android:grantUriPermissions="true"
+            android:exported="false"/>  <!--临时， 如果改了这个值，则可以在同一台机上装不同applicationId的应用，但由于WeHotel、lavande没有区分，所以暂时不适用这个值-->
+    </application>
+
+</manifest>

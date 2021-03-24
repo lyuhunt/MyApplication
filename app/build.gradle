@@ -1,0 +1,105 @@
+//apply from: 'tinker.gradle'
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        applicationId "com.apos.mvvm.lavande"
+        minSdkVersion 16
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+        //版本名后面添加一句话，意思就是flavor dimension 它的维度就是该版本号，这样维度就是都是统一的了
+        flavorDimensions "versionCode"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+
+    // 多渠道/多环境的不同配置
+    productFlavors {
+
+        wehotel {
+            // 动态替换applicationId, AndroidManifest.xml文件中用到applicationId的地方替换为${applicationId}
+            applicationId "com.apos.mvvm.wehotel"
+            // 动态生成常量,引用方法为BuildConfig.APP_NAME
+            buildConfigField "String", "APP_NAME", '"WeHotel"'
+            // 动态生成资源文件，需要确保资源文件中没有同名资源,引用方式为R.string.app_name或者@string/app_name
+            resValue "string", "app_name", "WeHotel"
+            // 动态生成AndroidManifest.xml文件引用,引用方法为${UMENG_CHANNEL_VALUE}
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "channel1",
+                                    UMENG_AMAP_APIKEY: "618477a805c8c8bd9217fe04646ab7b7",
+                                    UMENG_APP_NAME: "WeHotel",
+                                    UMENG_APP_ICON: "@drawable/wehotel"]
+        }
+
+        lavande {
+            // 动态替换applicationId, AndroidManifest.xml文件中用到applicationId的地方替换为${applicationId}
+            applicationId "com.apos.mvvm.lavande"
+            // 动态生成常量,引用方法为BuildConfig.APP_NAME
+            buildConfigField "String", "APP_NAME", '"麗枫酒店"'
+            // 动态生成资源文件，需要确保资源文件中没有同名资源,引用方式为R.string.app_name或者@string/app_name
+            resValue "string", "app_name", "麗枫酒店"
+            // 动态生成AndroidManifest.xml文件引用,引用方法为${UMENG_CHANNEL_VALUE}
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "channel2",
+                                    UMENG_AMAP_APIKEY: "1c6ba4fa4fb847ef2901e289d332e927",
+                                    UMENG_APP_NAME: "麗枫酒店",
+                                    UMENG_APP_ICON: "@drawable/lavande"]
+        }
+    }
+
+    //自定义APK名称,多渠道打包
+    android.applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            variant.productFlavors.each { flavor ->
+                def project = "mvvm"
+                def separator = "_"
+                def buildType = variant.variantData.variantConfiguration.buildType.name
+                def versionName = variant.versionName
+                def versionCode = variant.versionCode
+                def date = new Date()
+                def formattedDate = date.format('yyyyMMdd')
+
+                def apkName = project + separator + "v" + versionName + separator + versionCode + separator + buildType + separator + flavor.name + ".apk"
+                if (buildType == "release") {
+                    apkName = project + separator + "v" + versionName + separator + versionCode + separator + buildType + separator + flavor.name + separator + formattedDate + ".apk"
+                }
+
+                output.outputFileName = apkName
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
+    implementation 'androidx.navigation:navigation-fragment:2.0.0'
+    implementation 'androidx.navigation:navigation-ui:2.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    // 使用tinker
+    //可选，如果不用注解构建application可不用
+//  annotationProcessor("com.tencent.tinker:tinker-android-anno:1.9.14.5") { changing = true }
+//  compileOnly("com.tencent.tinker:tinker-android-anno:1.9.14.5") { changing = true }
+    //tinker's main Android lib
+    implementation('com.tencent.tinker:tinker-android-lib:1.9.14.5')
+    //dex分包
+    implementation "androidx.multidex:multidex:2.0.1"
+}
